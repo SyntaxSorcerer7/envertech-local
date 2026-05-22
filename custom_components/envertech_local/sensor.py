@@ -28,7 +28,7 @@ from homeassistant.helpers.event import async_track_time_change
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import EnvertechConfigEntry
-from .const import CONF_PRICE_PER_KWH, DEFAULT_PRICE_PER_KWH, DOMAIN, MANUFACTURER, MODEL
+from .const import CONF_MAX_POWER_PREFIX, CONF_PRICE_PER_KWH, DEFAULT_MAX_POWER, DEFAULT_PRICE_PER_KWH, DOMAIN, MANUFACTURER, MODEL
 from .coordinator import EnvertechCoordinator
 from .protocol import LiveData, MicroinverterData
 
@@ -178,6 +178,13 @@ async def async_setup_entry(
                 entities.append(
                     EnvertechChannelDailySensor(coordinator, description, idx, channel.uid)
                 )
+            # Max power (configured) and power percentage sensors
+            entities.append(
+                EnvertechMaxPowerSensor(coordinator, entry, idx, channel.uid)
+            )
+            entities.append(
+                EnvertechPowerPercentageSensor(coordinator, entry, idx, channel.uid)
+            )
 
     # Total/device-level sensors
     for description in TOTAL_SENSORS:
@@ -659,6 +666,102 @@ class EnvertechDailyPeakPowerSensor(
         if self._peak is None or current > self._peak:
             self._peak = current
         return self._peak
+
+
+class EnvertechMaxPowerSensor(
+    CoordinatorEntity[EnvertechCoordinator], SensorEntity
+):
+    """Sensor showing the configured maximum input power for a channel."""
+
+    _attr_has_entity_name = True
+    _attr_translation_key = "max_power"
+    _attr_native_unit_of_measurement = UnitOfPower.WATT
+    _attr_device_class = SensorDeviceClass.POWER
+    _attr_icon = "mdi:flash-alert"
+
+    def __init__(
+        self,
+        coordinator: EnvertechCoordinator,
+        entry: ConfigEntry,
+        channel_idx: int,
+        uid: int,
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator)
+        self._entry = entry
+        self._channel_idx = channel_idx
+        self._attr_unique_id = (
+            f"{coordinator.serial_hex}_mi{channel_idx}_max_power"
+        )
+        self.entity_id = (
+            f"sensor.envertech_mi_{channel_idx}_max_power"
+        )
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"{coordinator.serial_hex}_mi{channel_idx}")},
+            name=f"envertech-input-port-{channel_idx + 1}",
+            manufacturer=MANUFACTURER,
+            model=MODEL,
+            via_device=(DOMAIN, coordinator.serial_hex),
+        )
+
+    @property
+    def native_value(self) -> int:
+        """Return the configured max power for this channel."""
+        key = f"{CONF_MAX_POWER_PREFIX}{self._channel_idx}"
+        return int(self._entry.options.get(key, DEFAULT_MAX_POWER))
+
+
+class EnvertechPowerPercentageSensor(
+    CoordinatorEntity[EnvertechCoordinator], SensorEntity
+):
+    """Sensor showing current power as percentage of configured max power."""
+
+    _attr_has_entity_name = True
+    _attr_translation_key = "power_percentage"
+    _attr_native_unit_of_measurement = "%"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_icon = "mdi:percent"
+    _attr_suggested_display_precision = 1
+
+    def __init__(
+        self,
+        coordinator: EnvertechCoordinator,
+        entry: ConfigEntry,
+        channel_idx: int,
+        uid: int,
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator)
+        self._entry = entry
+        self._channel_idx = channel_idx
+        self._attr_unique_id = (
+            f"{coordinator.serial_hex}_mi{channel_idx}_power_percentage"
+        )
+        self.entity_id = (
+            f"sensor.envertech_mi_{channel_idx}_power_percentage"
+        )
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"{coordinator.serial_hex}_mi{channel_idx}")},
+            name=f"envertech-input-port-{channel_idx + 1}",
+            manufacturer=MANUFACTURER,
+            model=MODEL,
+            via_device=(DOMAIN, coordinator.serial_hex),
+        )
+
+    @property
+    def native_value(self) -> float | None:
+        """Return current power as percentage of max power."""
+        if (
+            self.coordinator.data is None
+            or self._channel_idx >= len(self.coordinator.data.channels)
+        ):
+            return 0.0
+        current_power = self.coordinator.data.channels[self._channel_idx].ac_power
+        key = f"{CONF_MAX_POWER_PREFIX}{self._channel_idx}"
+        max_power = int(self._entry.options.get(key, DEFAULT_MAX_POWER))
+        if max_power <= 0:
+            return 0.0
+        return round(current_power / max_power * 100, 1)
 
 
 

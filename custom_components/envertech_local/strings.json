@@ -23,7 +23,11 @@
       "init": {
         "title": "Envertech EVT Local – Options",
         "data": {
-          "price_per_kwh": "Price per kWh (EUR)"
+          "price_per_kwh": "Price per kWh (EUR)",
+          "max_power_channel_0": "Max Power Input 1 (W)",
+          "max_power_channel_1": "Max Power Input 2 (W)",
+          "max_power_channel_2": "Max Power Input 3 (W)",
+          "max_power_channel_3": "Max Power Input 4 (W)"
         }
       }
     }
@@ -44,7 +48,9 @@
       "daily_earnings": { "name": "Earnings Today" },
       "daily_peak_power_total": { "name": "Total Peak Power Today" },
       "daily_energy_channel": { "name": "Energy Today" },
-      "daily_peak_power": { "name": "Peak Power Today" }
+      "daily_peak_power": { "name": "Peak Power Today" },
+      "max_power": { "name": "Max Power" },
+      "power_percentage": { "name": "Power Percentage" }
     },
     "select": {
       "power_limit": { "name": "Power Limit" }

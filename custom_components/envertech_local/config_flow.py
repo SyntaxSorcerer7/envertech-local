@@ -11,7 +11,15 @@ from homeassistant.config_entries import ConfigFlow, ConfigFlowResult, OptionsFl
 from homeassistant.const import CONF_HOST
 from homeassistant.core import callback
 
-from .const import CONF_PRICE_PER_KWH, CONF_SERIAL, DEFAULT_PRICE_PER_KWH, DOMAIN
+from .const import (
+    CONF_MAX_POWER_PREFIX,
+    CONF_PRICE_PER_KWH,
+    CONF_SERIAL,
+    DEFAULT_MAX_POWER,
+    DEFAULT_PRICE_PER_KWH,
+    DOMAIN,
+)
+from .coordinator import EnvertechCoordinator
 from .protocol import EnvertechConnection
 
 _LOGGER = logging.getLogger(__name__)
@@ -92,13 +100,23 @@ class EnvertechOptionsFlow(OptionsFlow):
             CONF_PRICE_PER_KWH, DEFAULT_PRICE_PER_KWH
         )
 
+        schema_fields: dict[Any, Any] = {
+            vol.Required(CONF_PRICE_PER_KWH, default=current_price): vol.All(
+                vol.Coerce(float), vol.Range(min=0)
+            ),
+        }
+
+        # Add per-channel max power fields
+        coordinator: EnvertechCoordinator = self.config_entry.runtime_data
+        if coordinator.data and coordinator.data.channels:
+            for idx in range(len(coordinator.data.channels)):
+                key = f"{CONF_MAX_POWER_PREFIX}{idx}"
+                current_max = self.config_entry.options.get(key, DEFAULT_MAX_POWER)
+                schema_fields[
+                    vol.Required(key, default=current_max)
+                ] = vol.All(vol.Coerce(int), vol.Range(min=1))
+
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_PRICE_PER_KWH, default=current_price): vol.All(
-                        vol.Coerce(float), vol.Range(min=0)
-                    ),
-                }
-            ),
+            data_schema=vol.Schema(schema_fields),
         )

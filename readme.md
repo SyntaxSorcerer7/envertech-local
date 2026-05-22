@@ -374,6 +374,12 @@ Die vollständige Protokolldokumentation befindet sich in [`research/wechselrich
 
 ## Changelog
 
+### 1.7.0 – 2026-05-22
+
+- **Neu:** Konfigurierbare maximale Eingangsleistung pro Kanal (Standard: 500 W) – einstellbar über **Einstellungen → Geräte & Dienste → Konfigurieren**
+- **Neu:** Sensor `Maximalleistung` pro Eingang (MI 0–3) – zeigt den konfigurierten Maximalwert in Watt, nutzbar für Automationen und Dashboards
+- **Neu:** Sensor `Leistung in Prozent` pro Eingang (MI 0–3) – zeigt die aktuelle Auslastung als Prozentwert der konfigurierten Maximalleistung
+
 ### 1.6.0 – 2026-05-22
 
 - **Neu:** `Energie Heute` pro Eingang (MI 0–3) – zeigt die seit Mitternacht erzeugte Energie je Kanal in kWh, automatischer Reset um Mitternacht
