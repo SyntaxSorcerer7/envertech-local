@@ -1,7 +1,7 @@
 {
   "domain": "envertech_local",
   "name": "Envertech EVT Local",
-  "codeowners": [],
+  "codeowners": ["SyntaxSorcerer7"],
   "config_flow": true,
   "documentation": "https://github.com/SyntaxSorcerer7/envertech-local-hacs",
   "iot_class": "local_polling",
@@ -9,3 +9,4 @@
   "requirements": [],
   "version": "1.5.0"
 }
+  
