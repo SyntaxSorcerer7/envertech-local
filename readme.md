@@ -86,13 +86,14 @@ Die Seriennummer kann auch über die EnverView-App oder das Envertech-Portal abg
 Es werden **4 Geräte** angelegt (MI 0 bis MI 3), jeweils mit:
 
 | Sensor | Einheit | Device Class | Beschreibung |
-|--------|---------|-------------|--------------|
+|--------|---------|-------------|--|
 | DC-Spannung | V | `voltage` | Eingangsspannung vom Solarpanel |
 | AC-Leistung | W | `power` | Aktuelle Einspeiseleistung |
 | Gesamtenergie | kWh | `energy` | Kumulierte Energieproduktion |
 | Temperatur | °C | `temperature` | Interne Temperatur des MI |
 | AC-Spannung | V | `voltage` | Netzspannung |
 | Frequenz | Hz | `frequency` | Netzfrequenz |
+| **Spitzenleistung Heute** | W | `power` | Höchste AC-Leistung des aktuellen Tages, Reset um Mitternacht |
 
 ### Gesamtgerät
 
@@ -100,6 +101,7 @@ Es werden **4 Geräte** angelegt (MI 0 bis MI 3), jeweils mit:
 |--------|---------|--------------|
 | AC-Gesamtleistung | W | Summe aller 4 MI-Kanäle |
 | Gesamtenergie | kWh | Summe aller 4 MI-Kanäle |
+| **Gesamtspitzenleistung Heute** | W | Höchste Gesamt-AC-Leistung des aktuellen Tages, Reset um Mitternacht |
 | Firmware-Version | – | z.B. "164.125" (standardmäßig deaktiviert) |
 
 ### Steuerung
@@ -371,6 +373,13 @@ Die vollständige Protokolldokumentation befindet sich in [`research/wechselrich
 ---
 
 ## Changelog
+
+### 1.5.0 – 2026-05-22
+
+- **Neu:** `Spitzenleistung Heute` pro Eingang (MI 0–3) – höchste AC-Leistung des aktuellen Tages, automatischer Reset um Mitternacht
+- **Neu:** `Gesamtspitzenleistung Heute` – höchste Gesamt-AC-Leistung des aktuellen Tages, automatischer Reset um Mitternacht
+- Peak-Sensoren überleben HA-Neustarts dank `RestoreSensor` und setzen sich täglich automatisch zurück
+- Peak-Logik direkt in die `EnvertechChannelSensorDescription` integriert (kein separater Sensor-Typ mehr nötig)
 
 ### 1.4.0 – 2026-05-08
 

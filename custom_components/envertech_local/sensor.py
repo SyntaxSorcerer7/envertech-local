@@ -39,6 +39,7 @@ class EnvertechChannelSensorDescription(SensorEntityDescription):
 
     value_fn: Callable[[MicroinverterData], float | None]
     is_live: bool = True  # True = 0 on disconnect, False = keep last value
+    is_peak: bool = False  # True = track daily max, reset at midnight
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -99,6 +100,17 @@ CHANNEL_SENSORS: tuple[EnvertechChannelSensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda ch: ch.frequency,
     ),
+    EnvertechChannelSensorDescription(
+        key="daily_peak_power",
+        translation_key="daily_peak_power",
+        native_unit_of_measurement=UnitOfPower.WATT,
+        device_class=SensorDeviceClass.POWER,
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:lightning-bolt",
+        suggested_display_precision=1,
+        value_fn=lambda ch: ch.ac_power,
+        is_peak=True,
+    ),
 )
 
 TOTAL_SENSORS: tuple[EnvertechTotalSensorDescription, ...] = (
@@ -156,6 +168,9 @@ async def async_setup_entry(
     entities.append(EnvertechDailyEnergySensor(coordinator, entry))
     entities.append(EnvertechDailyEarningsSensor(coordinator, entry))
 
+    # Daily total peak power sensor
+    entities.append(EnvertechDailyPeakPowerSensor(coordinator))
+
     async_add_entities(entities)
 
 
@@ -179,6 +194,7 @@ class EnvertechChannelSensor(
         self.entity_description = description
         self._channel_idx = channel_idx
         self._uid = uid
+        self._peak: float | None = None
         self._attr_unique_id = (
             f"{coordinator.serial_hex}_mi{channel_idx}_{description.key}"
         )
@@ -194,11 +210,25 @@ class EnvertechChannelSensor(
         )
 
     async def async_added_to_hass(self) -> None:
-        """Restore last value for non-live sensors on HA restart."""
+        """Restore last value on HA restart; register midnight reset for peak sensors."""
         await super().async_added_to_hass()
-        if not self.entity_description.is_live:
+        if self.entity_description.is_peak:
+            if (last := await self.async_get_last_sensor_data()) is not None:
+                try:
+                    self._peak = float(last.native_value)  # type: ignore[arg-type]
+                except (TypeError, ValueError):
+                    pass
+            async_track_time_change(
+                self.hass, self._async_midnight_reset, hour=0, minute=0, second=0
+            )
+        elif not self.entity_description.is_live:
             if (last := await self.async_get_last_sensor_data()) is not None:
                 self._attr_native_value = last.native_value
+
+    async def _async_midnight_reset(self, _now: Any) -> None:
+        """Reset daily peak at midnight."""
+        self._peak = 0.0
+        self.async_write_ha_state()
 
     @property
     def native_value(self) -> float | None:
@@ -207,11 +237,18 @@ class EnvertechChannelSensor(
             self.coordinator.data is None
             or self._channel_idx >= len(self.coordinator.data.channels)
         ):
+            if self.entity_description.is_peak:
+                return self._peak if self._peak is not None else 0.0
             if self.entity_description.is_live:
                 return 0
             return self._attr_native_value  # keep last known value
         channel = self.coordinator.data.channels[self._channel_idx]
         val = self.entity_description.value_fn(channel)
+        if self.entity_description.is_peak:
+            current = round(val, 1) if val is not None else 0.0
+            if self._peak is None or current > self._peak:
+                self._peak = current
+            return self._peak
         if not self.entity_description.is_live and val is not None:
             self._attr_native_value = val
         return val
@@ -465,4 +502,60 @@ class EnvertechDailyEarningsSensor(
             0.0, self.coordinator.data.total_energy - self._midnight_baseline
         )
         return round(daily_kwh * self._price(), 2)
+
+
+class EnvertechDailyPeakPowerSensor(
+    CoordinatorEntity[EnvertechCoordinator], RestoreSensor
+):
+    """Sensor for total peak AC power today. Resets automatically at midnight."""
+
+    _attr_has_entity_name = True
+    _attr_translation_key = "daily_peak_power_total"
+    _attr_native_unit_of_measurement = UnitOfPower.WATT
+    _attr_device_class = SensorDeviceClass.POWER
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_icon = "mdi:lightning-bolt"
+    _attr_suggested_display_precision = 1
+
+    def __init__(self, coordinator: EnvertechCoordinator) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator)
+        self._peak: float | None = None
+        self._attr_unique_id = f"{coordinator.serial_hex}_daily_peak_power"
+        self.entity_id = "sensor.envertech_daily_peak_power"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, coordinator.serial_hex)},
+            name=f"Envertech {coordinator.serial_hex}",
+            manufacturer=MANUFACTURER,
+            model=MODEL,
+        )
+
+    async def async_added_to_hass(self) -> None:
+        """Restore last peak on HA restart and register midnight reset."""
+        await super().async_added_to_hass()
+        if (last := await self.async_get_last_sensor_data()) is not None:
+            try:
+                self._peak = float(last.native_value)  # type: ignore[arg-type]
+            except (TypeError, ValueError):
+                pass
+        async_track_time_change(
+            self.hass, self._async_midnight_reset, hour=0, minute=0, second=0
+        )
+
+    async def _async_midnight_reset(self, _now: Any) -> None:
+        """Reset peak at midnight."""
+        self._peak = 0.0
+        self.async_write_ha_state()
+
+    @property
+    def native_value(self) -> float | None:
+        """Return peak total AC power since midnight."""
+        if self.coordinator.data is None:
+            return self._peak if self._peak is not None else 0.0
+        current = round(self.coordinator.data.total_ac_power, 1)
+        if self._peak is None or current > self._peak:
+            self._peak = current
+        return self._peak
+
+
 

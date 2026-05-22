@@ -41,7 +41,9 @@
       "firmware": { "name": "Firmware-Version" },
       "earnings": { "name": "Ertrag" },
       "daily_energy": { "name": "Energie Heute" },
-      "daily_earnings": { "name": "Ertrag Heute" }
+      "daily_earnings": { "name": "Ertrag Heute" },
+      "daily_peak_power_total": { "name": "Gesamtspitzenleistung Heute" },
+      "daily_peak_power": { "name": "Spitzenleistung Heute" }
     },
     "select": {
       "power_limit": { "name": "Leistungsbegrenzung" }
