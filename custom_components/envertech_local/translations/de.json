@@ -43,6 +43,7 @@
       "daily_energy": { "name": "Energie Heute" },
       "daily_earnings": { "name": "Ertrag Heute" },
       "daily_peak_power_total": { "name": "Gesamtspitzenleistung Heute" },
+      "daily_energy_channel": { "name": "Energie Heute" },
       "daily_peak_power": { "name": "Spitzenleistung Heute" }
     },
     "select": {

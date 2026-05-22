@@ -374,6 +374,11 @@ Die vollständige Protokolldokumentation befindet sich in [`research/wechselrich
 
 ## Changelog
 
+### 1.6.0 – 2026-05-22
+
+- **Neu:** `Energie Heute` pro Eingang (MI 0–3) – zeigt die seit Mitternacht erzeugte Energie je Kanal in kWh, automatischer Reset um Mitternacht
+- **Geändert:** Channel-Sensoren in saubere Klassenhierarchie aufgeteilt (`EnvertechChannelSensor`, `EnvertechChannelPeakSensor`, `EnvertechChannelDailySensor`) statt Bool-Flags – keine Breaking Changes bei bestehenden Entities
+
 ### 1.5.0 – 2026-05-22
 
 - **Neu:** `Spitzenleistung Heute` pro Eingang (MI 0–3) – höchste AC-Leistung des aktuellen Tages, automatischer Reset um Mitternacht

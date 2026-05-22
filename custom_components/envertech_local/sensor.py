@@ -39,7 +39,6 @@ class EnvertechChannelSensorDescription(SensorEntityDescription):
 
     value_fn: Callable[[MicroinverterData], float | None]
     is_live: bool = True  # True = 0 on disconnect, False = keep last value
-    is_peak: bool = False  # True = track daily max, reset at midnight
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -100,6 +99,9 @@ CHANNEL_SENSORS: tuple[EnvertechChannelSensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda ch: ch.frequency,
     ),
+)
+
+CHANNEL_PEAK_SENSORS: tuple[EnvertechChannelSensorDescription, ...] = (
     EnvertechChannelSensorDescription(
         key="daily_peak_power",
         translation_key="daily_peak_power",
@@ -109,7 +111,19 @@ CHANNEL_SENSORS: tuple[EnvertechChannelSensorDescription, ...] = (
         icon="mdi:lightning-bolt",
         suggested_display_precision=1,
         value_fn=lambda ch: ch.ac_power,
-        is_peak=True,
+    ),
+)
+
+CHANNEL_DAILY_SENSORS: tuple[EnvertechChannelSensorDescription, ...] = (
+    EnvertechChannelSensorDescription(
+        key="daily_energy_channel",
+        translation_key="daily_energy_channel",
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL,
+        icon="mdi:weather-sunny",
+        suggested_display_precision=3,
+        value_fn=lambda ch: ch.total_energy,
     ),
 )
 
@@ -156,6 +170,14 @@ async def async_setup_entry(
                 entities.append(
                     EnvertechChannelSensor(coordinator, description, idx, channel.uid)
                 )
+            for description in CHANNEL_PEAK_SENSORS:
+                entities.append(
+                    EnvertechChannelPeakSensor(coordinator, description, idx, channel.uid)
+                )
+            for description in CHANNEL_DAILY_SENSORS:
+                entities.append(
+                    EnvertechChannelDailySensor(coordinator, description, idx, channel.uid)
+                )
 
     # Total/device-level sensors
     for description in TOTAL_SENSORS:
@@ -174,10 +196,10 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class EnvertechChannelSensor(
+class _EnvertechChannelSensorBase(
     CoordinatorEntity[EnvertechCoordinator], RestoreSensor
 ):
-    """Sensor for a single micro-inverter channel."""
+    """Base class for per-channel sensors with shared init."""
 
     entity_description: EnvertechChannelSensorDescription
     _attr_has_entity_name = True
@@ -194,7 +216,6 @@ class EnvertechChannelSensor(
         self.entity_description = description
         self._channel_idx = channel_idx
         self._uid = uid
-        self._peak: float | None = None
         self._attr_unique_id = (
             f"{coordinator.serial_hex}_mi{channel_idx}_{description.key}"
         )
@@ -209,49 +230,131 @@ class EnvertechChannelSensor(
             via_device=(DOMAIN, coordinator.serial_hex),
         )
 
+    def _channel_value(self) -> float | None:
+        """Return the current value_fn result for this channel, or None."""
+        if (
+            self.coordinator.data is None
+            or self._channel_idx >= len(self.coordinator.data.channels)
+        ):
+            return None
+        return self.entity_description.value_fn(
+            self.coordinator.data.channels[self._channel_idx]
+        )
+
+
+class EnvertechChannelSensor(_EnvertechChannelSensorBase):
+    """Basic channel sensor (live or persistent)."""
+
     async def async_added_to_hass(self) -> None:
-        """Restore last value on HA restart; register midnight reset for peak sensors."""
+        """Restore last value for persistent sensors on HA restart."""
         await super().async_added_to_hass()
-        if self.entity_description.is_peak:
-            if (last := await self.async_get_last_sensor_data()) is not None:
-                try:
-                    self._peak = float(last.native_value)  # type: ignore[arg-type]
-                except (TypeError, ValueError):
-                    pass
-            async_track_time_change(
-                self.hass, self._async_midnight_reset, hour=0, minute=0, second=0
-            )
-        elif not self.entity_description.is_live:
+        if not self.entity_description.is_live:
             if (last := await self.async_get_last_sensor_data()) is not None:
                 self._attr_native_value = last.native_value
 
+    @property
+    def native_value(self) -> float | None:
+        """Return the sensor value."""
+        val = self._channel_value()
+        if val is None:
+            if self.entity_description.is_live:
+                return 0
+            return self._attr_native_value
+        if not self.entity_description.is_live:
+            self._attr_native_value = val
+        return val
+
+
+class EnvertechChannelPeakSensor(_EnvertechChannelSensorBase):
+    """Channel sensor that tracks daily maximum. Resets at midnight."""
+
+    def __init__(
+        self,
+        coordinator: EnvertechCoordinator,
+        description: EnvertechChannelSensorDescription,
+        channel_idx: int,
+        uid: int,
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, description, channel_idx, uid)
+        self._peak: float | None = None
+
+    async def async_added_to_hass(self) -> None:
+        """Restore last peak on HA restart and register midnight reset."""
+        await super().async_added_to_hass()
+        if (last := await self.async_get_last_sensor_data()) is not None:
+            try:
+                self._peak = float(last.native_value)  # type: ignore[arg-type]
+            except (TypeError, ValueError):
+                pass
+        async_track_time_change(
+            self.hass, self._async_midnight_reset, hour=0, minute=0, second=0
+        )
+
     async def _async_midnight_reset(self, _now: Any) -> None:
-        """Reset daily peak at midnight."""
+        """Reset peak at midnight."""
         self._peak = 0.0
         self.async_write_ha_state()
 
     @property
     def native_value(self) -> float | None:
-        """Return the sensor value."""
-        if (
-            self.coordinator.data is None
-            or self._channel_idx >= len(self.coordinator.data.channels)
-        ):
-            if self.entity_description.is_peak:
-                return self._peak if self._peak is not None else 0.0
-            if self.entity_description.is_live:
-                return 0
-            return self._attr_native_value  # keep last known value
-        channel = self.coordinator.data.channels[self._channel_idx]
-        val = self.entity_description.value_fn(channel)
-        if self.entity_description.is_peak:
-            current = round(val, 1) if val is not None else 0.0
-            if self._peak is None or current > self._peak:
-                self._peak = current
-            return self._peak
-        if not self.entity_description.is_live and val is not None:
-            self._attr_native_value = val
-        return val
+        """Return peak value since midnight."""
+        val = self._channel_value()
+        if val is None:
+            return self._peak if self._peak is not None else 0.0
+        current = round(val, 1)
+        if self._peak is None or current > self._peak:
+            self._peak = current
+        return self._peak
+
+
+class EnvertechChannelDailySensor(_EnvertechChannelSensorBase):
+    """Channel sensor that tracks delta since midnight. Resets at midnight."""
+
+    def __init__(
+        self,
+        coordinator: EnvertechCoordinator,
+        description: EnvertechChannelSensorDescription,
+        channel_idx: int,
+        uid: int,
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, description, channel_idx, uid)
+        self._midnight_baseline: float | None = None
+
+    async def async_added_to_hass(self) -> None:
+        """Restore baseline on HA restart and register midnight reset."""
+        await super().async_added_to_hass()
+        if (last := await self.async_get_last_sensor_data()) is not None:
+            try:
+                last_daily = float(last.native_value)  # type: ignore[arg-type]
+                total = self._channel_value()
+                if total is not None:
+                    self._midnight_baseline = total - last_daily
+            except (TypeError, ValueError):
+                pass
+        if self._midnight_baseline is None:
+            total = self._channel_value()
+            if total is not None:
+                self._midnight_baseline = total
+        async_track_time_change(
+            self.hass, self._async_midnight_reset, hour=0, minute=0, second=0
+        )
+
+    async def _async_midnight_reset(self, _now: Any) -> None:
+        """Set new baseline at midnight."""
+        total = self._channel_value()
+        if total is not None:
+            self._midnight_baseline = total
+        self.async_write_ha_state()
+
+    @property
+    def native_value(self) -> float | None:
+        """Return value produced since midnight."""
+        total = self._channel_value()
+        if total is None or self._midnight_baseline is None:
+            return 0.0
+        return round(max(0.0, total - self._midnight_baseline), 3)
 
 
 class EnvertechTotalSensor(
