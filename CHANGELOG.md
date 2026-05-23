@@ -4,6 +4,22 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 Versionierung folgt [Semantic Versioning](https://semver.org/).
 
+## [1.7.1] – 2026-05-23
+
+### Hinzugefügt
+- GitHub Action für HACS-Validierung (validate.yaml)
+- GitHub Action für hassfest-Validierung (hassfest.yaml)
+- GitHub Action für automatische Release-Erstellung aus CHANGELOG.md (release.yaml)
+- Script `add_changelog_entry.py` für strukturiertes Hinzufügen von Changelog-Einträgen
+- Brand-Icons für HACS-UI (`brand/icon.png`, `logo.png` inkl. @2x-Varianten)
+- CHANGELOG.md als eigenständige Datei im Keep-a-Changelog-Format
+
+### Geändert
+- Release-Prompt verwendet jetzt `add_changelog_entry.py` statt manuellem Editieren
+- README verweist auf CHANGELOG.md statt eigenen Changelog-Abschnitt
+- `codeowners` in manifest.json mit korrektem `@`-Präfix
+- `hacs.json` bereinigt (Name, unnötige Felder entfernt)
+
 ## [1.7.0] – 2026-05-22
 
 ### Hinzugefügt
