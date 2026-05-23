@@ -4,6 +4,15 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 Versionierung folgt [Semantic Versioning](https://semver.org/).
 
+## [1.7.2] – 2026-05-23
+
+### Hinzugefügt
+- Script `prepare_release.py` für vollständig automatisierten Release-Ablauf (Changelog, Manifest, Commit, Tag und Push in einem Befehl)
+
+### Geändert
+- Release-Prompt: Commits seit letztem Tag werden automatisch kategorisiert und direkt als Changelog-Inhalt verwendet
+- Release-Prozess: Manifest-Versionierung, Commit und Tag werden jetzt vom Script übernommen
+
 ## [1.7.1] – 2026-05-23
 
 ### Hinzugefügt
