@@ -13,9 +13,16 @@ Führe die folgenden Schritte **der Reihe nach** aus:
 
 ### 1. Änderungen prüfen
 
-- Führe `git status` und `git diff --stat` aus, um alle Änderungen seit dem letzten Commit/Tag zu ermitteln.
-- Führe `git log --oneline $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD` aus, um alle Commits seit dem letzten Tag zu sehen.
-- Fasse die Änderungen kurz zusammen und zeige sie dem Benutzer.
+- Führe `git status` und `git diff --stat` aus, um alle unstaged Änderungen zu sehen.
+- Führe folgenden Befehl aus, um **alle Commits seit dem letzten Tag** mit ihren Details zu erfassen:
+  ```bash
+  git log --pretty=format:"%s%n%b" $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD
+  ```
+- Kategorisiere die Commits nach Art der Änderung:
+  - **Hinzugefügt** (`feat:`, neue Dateien, neue Funktionen)
+  - **Geändert** (`refactor:`, `chore:`, `fix:` an bestehendem Code, Konfigurationsänderungen)
+  - **Behoben** (explizite Bugfixes)
+- Fasse alle Änderungen auf Deutsch zusammen und zeige die kategorisierte Liste dem Benutzer – dies wird direkt als Changelog-Inhalt verwendet.
 
 ### 2. Versionsnummer bestimmen
 
@@ -28,7 +35,8 @@ Führe die folgenden Schritte **der Reihe nach** aus:
 
 ### 3. Changelog, Manifest, Commit und Tag erstellen
 
-- Leite die Changelog-Einträge aus den tatsächlichen Änderungen ab (Schritt 1). Schreibe auf Deutsch.
+- Verwende die in Schritt 1 kategorisierten Commits direkt als Changelog-Einträge. Schreibe auf Deutsch.
+- Jeden Commit als eigenen Listenpunkt formulieren – knapp und präzise, kein technisches Git-Jargon.
 - Formuliere eine prägnante deutsche Commit-Message im Format:
   ```
   Release v<VERSION>: <Kurzbeschreibung>
