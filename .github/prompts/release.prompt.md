@@ -30,23 +30,27 @@ Führe die folgenden Schritte **der Reihe nach** aus:
 
 - Aktualisiere das Feld `"version"` in `custom_components/envertech_local/manifest.json` auf die neue Version.
 
-### 4. Changelog im README schreiben
+### 4. Changelog in CHANGELOG.md schreiben
 
-- Öffne `readme.md` und finde den Abschnitt `## Changelog`.
-- Füge **direkt unter** `## Changelog` einen neuen Eintrag im bestehenden Format ein:
+- Öffne `CHANGELOG.md` und füge **direkt unter** der Überschrift `# Changelog` (vor dem ersten bestehenden Eintrag) einen neuen Abschnitt ein:
 
 ```
-### <VERSION> – <DATUM im Format YYYY-MM-DD>
+## [<VERSION>] – <DATUM im Format YYYY-MM-DD>
 
-- **Neu:** <Feature-Beschreibung> (falls zutreffend)
-- **Fix:** <Bugfix-Beschreibung> (falls zutreffend)
-- **Geändert:** <Änderungsbeschreibung> (falls zutreffend)
-- <Weitere Details als Unterpunkte>
+### Hinzugefügt
+- <Feature-Beschreibung> (falls zutreffend)
+
+### Geändert
+- <Änderungsbeschreibung> (falls zutreffend)
+
+### Behoben
+- <Bugfix-Beschreibung> (falls zutreffend)
 ```
 
+- Lasse Abschnitte (`### Hinzugefügt` etc.) weg, die nicht zutreffen.
 - Verwende das heutige Datum.
 - Leite die Einträge aus den tatsächlichen Änderungen ab (Schritt 1). Schreibe auf Deutsch.
-- Halte den Stil konsistent mit den bestehenden Changelog-Einträgen.
+- Halte den Stil konsistent mit den bestehenden Einträgen.
 
 ### 5. Commit erstellen
 
@@ -76,7 +80,7 @@ Zeige dem Benutzer eine Zusammenfassung:
 
 ## Wichtige Regeln
 
-- Ändere **nur** die Dateien `manifest.json` und `readme.md` – keine anderen Dateien modifizieren.
+- Ändere **nur** die Dateien `manifest.json` und `CHANGELOG.md` – keine anderen Dateien modifizieren.
 - Führe **kein** `git push` aus – das macht der Benutzer selbst.
 - Schreibe Changelog-Einträge und Commit-Messages auf **Deutsch**.
 - Frage bei Unklarheiten **immer** nach, statt zu raten.
