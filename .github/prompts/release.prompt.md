@@ -41,7 +41,7 @@ Führe die folgenden Schritte **der Reihe nach** aus:
 - Rufe dann das Script auf (in einem einzigen Befehl):
 
 ```bash
-python3 .github/scripts/add_changelog_entry.py \
+python3 .github/scripts/prepare_release.py \
     --version <VERSION> \
     --date <DATUM im Format YYYY-MM-DD> \
     --added "Feature A" "Feature B" \
@@ -63,11 +63,11 @@ Zeige dem Benutzer eine Zusammenfassung:
 - Changelog-Eintrag
 - Commit-Message
 - Git-Tag
-- Hinweis: `git push && git push --tags` ausführen, um den Release zu veröffentlichen
+- Hinweis: Die GitHub Action erstellt nun automatisch das GitHub Release.
 
 ## Wichtige Regeln
 
-- Das Script übernimmt alle Dateiänderungen (nur `CHANGELOG.md` und `manifest.json`) sowie Commit und Tag – **keine manuellen Änderungen** an anderen Dateien.
-- Führe **kein** `git push` aus – das macht der Benutzer selbst.
+- Das Script übernimmt alle Dateiänderungen (nur `CHANGELOG.md` und `manifest.json`) sowie Commit, Tag und Push – **keine manuellen Schritte** danach nötig.
+- Führe **kein** `git push` aus – das erledigt `prepare_release.py` automatisch.
 - Schreibe Changelog-Einträge und Commit-Messages auf **Deutsch**.
 - Frage bei Unklarheiten **immer** nach, statt zu raten.

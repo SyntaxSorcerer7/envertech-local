@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """
-Fügt einen neuen Eintrag in CHANGELOG.md ein, aktualisiert manifest.json
-und erstellt optional Commit + Git-Tag.
+Bereitet einen Release vor: Changelog-Eintrag, Manifest-Version, Commit und Tag.
 
 Verwendung:
-    python3 .github/scripts/add_changelog_entry.py \\
+    python3 .github/scripts/prepare_release.py \\
         --version 1.8.0 \\
         --date 2026-05-23 \\
         --added "Neues Feature A" "Neues Feature B" \\
@@ -58,12 +57,15 @@ def update_manifest(version: str) -> None:
 
 
 def git_commit_and_tag(version: str, message: str) -> None:
-    """Staged alle Änderungen, erstellt Commit und annotierten Tag."""
+    """Staged alle Änderungen, erstellt Commit, annotierten Tag und pusht alles."""
     subprocess.run(["git", "add", "-A"], cwd=REPO_ROOT, check=True)
     subprocess.run(["git", "commit", "-m", message], cwd=REPO_ROOT, check=True)
     tag = f"v{version}"
     subprocess.run(["git", "tag", "-a", tag, "-m", f"Release {tag}"], cwd=REPO_ROOT, check=True)
     print(f"✓ Commit erstellt und Tag {tag} gesetzt.")
+    subprocess.run(["git", "push"], cwd=REPO_ROOT, check=True)
+    subprocess.run(["git", "push", "--tags"], cwd=REPO_ROOT, check=True)
+    print(f"✓ Branch und Tags nach origin gepusht.")
 
 
 def main() -> None:
@@ -110,12 +112,11 @@ def main() -> None:
     # Update manifest
     update_manifest(args.version)
 
-    # Commit + Tag if message provided
+    # Commit + Tag + Push if message provided
     if args.commit_message:
         git_commit_and_tag(args.version, args.commit_message)
         print()
-        print(f"Release v{args.version} abgeschlossen. Jetzt pushen mit:")
-        print("  git push && git push --tags")
+        print(f"✓ Release v{args.version} vollständig abgeschlossen und veröffentlicht.")
 
 
 if __name__ == "__main__":
