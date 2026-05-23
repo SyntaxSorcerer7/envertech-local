@@ -4,6 +4,11 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag (z.B. v1.7.2)"
+        required: true
 
 permissions:
   contents: write
@@ -17,7 +22,8 @@ jobs:
       - name: Extract changelog for this version
         id: changelog
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          VERSION="${TAG#v}"
           # Extract the block between this version header and the next one
           NOTES=$(awk "/^## \[$VERSION\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md)
           # Write to file to preserve newlines
@@ -29,3 +35,4 @@ jobs:
         uses: "softprops/action-gh-release@v2"
         with:
           body_path: release_notes.txt
+          token: ${{ secrets.GITHUB_TOKEN }}
