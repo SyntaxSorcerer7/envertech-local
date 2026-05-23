@@ -32,25 +32,21 @@ Führe die folgenden Schritte **der Reihe nach** aus:
 
 ### 4. Changelog in CHANGELOG.md schreiben
 
-- Öffne `CHANGELOG.md` und füge **direkt unter** der Überschrift `# Changelog` (vor dem ersten bestehenden Eintrag) einen neuen Abschnitt ein:
-
-```
-## [<VERSION>] – <DATUM im Format YYYY-MM-DD>
-
-### Hinzugefügt
-- <Feature-Beschreibung> (falls zutreffend)
-
-### Geändert
-- <Änderungsbeschreibung> (falls zutreffend)
-
-### Behoben
-- <Bugfix-Beschreibung> (falls zutreffend)
-```
-
-- Lasse Abschnitte (`### Hinzugefügt` etc.) weg, die nicht zutreffen.
-- Verwende das heutige Datum.
 - Leite die Einträge aus den tatsächlichen Änderungen ab (Schritt 1). Schreibe auf Deutsch.
-- Halte den Stil konsistent mit den bestehenden Einträgen.
+- Rufe das Script `.github/scripts/add_changelog_entry.py` auf, um den Eintrag korrekt einzufügen:
+
+```bash
+python3 .github/scripts/add_changelog_entry.py \
+    --version <VERSION> \
+    --date <DATUM im Format YYYY-MM-DD> \
+    --added "Feature A" "Feature B" \
+    --changed "Änderung C" \
+    --fixed "Bugfix D"
+```
+
+- Lasse `--added`, `--changed` oder `--fixed` weg, wenn es dazu keine Einträge gibt.
+- Jeder Wert hinter `--added` / `--changed` / `--fixed` ist ein eigener Listenpunkt – formuliere sie knapp und präzise.
+- Zeige dem Benutzer den generierten Changelog-Abschnitt zur Bestätigung, bevor du weitermachst.
 
 ### 5. Commit erstellen
 
