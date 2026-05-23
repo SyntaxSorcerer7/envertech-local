@@ -4,6 +4,12 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 Versionierung folgt [Semantic Versioning](https://semver.org/).
 
+## [1.7.3] – 2026-05-23
+
+### Geändert
+- Release-Action: `tag_name` explizit gesetzt – behebt fehlenden Tag-Fehler bei manuell gestarteten Releases
+- Release-Action: Manueller Start über Actions-Tab mit Tag-Eingabe möglich (`workflow_dispatch`)
+
 ## [1.7.2] – 2026-05-23
 
 ### Hinzugefügt
