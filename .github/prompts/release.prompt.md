@@ -26,14 +26,19 @@ Führe die folgenden Schritte **der Reihe nach** aus:
   - **Major** (z.B. 1.5.0 → 2.0.0): Breaking Changes
 - Warte auf die Bestätigung des Benutzers bevor du weitermachst.
 
-### 3. Manifest aktualisieren
+### 3. Changelog, Manifest, Commit und Tag erstellen
 
-- Aktualisiere das Feld `"version"` in `custom_components/envertech_local/manifest.json` auf die neue Version.
+- Leite die Changelog-Einträge aus den tatsächlichen Änderungen ab (Schritt 1). Schreibe auf Deutsch.
+- Formuliere eine prägnante deutsche Commit-Message im Format:
+  ```
+  Release v<VERSION>: <Kurzbeschreibung>
 
-### 4. Changelog in CHANGELOG.md schreiben
-
-- Leite die Einträge aus den tatsächlichen Änderungen ab (Schritt 1). Schreibe auf Deutsch.
-- Rufe das Script `.github/scripts/add_changelog_entry.py` auf, um den Eintrag korrekt einzufügen:
+  - <Detailpunkt 1>
+  - <Detailpunkt 2>
+  - ...
+  ```
+- Zeige dem Benutzer die geplante Commit-Message und den Changelog-Inhalt zur Bestätigung – warte auf Freigabe bevor du weitermachst.
+- Rufe dann das Script auf (in einem einzigen Befehl):
 
 ```bash
 python3 .github/scripts/add_changelog_entry.py \
@@ -41,31 +46,17 @@ python3 .github/scripts/add_changelog_entry.py \
     --date <DATUM im Format YYYY-MM-DD> \
     --added "Feature A" "Feature B" \
     --changed "Änderung C" \
-    --fixed "Bugfix D"
+    --fixed "Bugfix D" \
+    --commit-message "Release v<VERSION>: <Kurzbeschreibung>
+
+- <Detailpunkt 1>
+- <Detailpunkt 2>"
 ```
 
 - Lasse `--added`, `--changed` oder `--fixed` weg, wenn es dazu keine Einträge gibt.
-- Jeder Wert hinter `--added` / `--changed` / `--fixed` ist ein eigener Listenpunkt – formuliere sie knapp und präzise.
-- Zeige dem Benutzer den generierten Changelog-Abschnitt zur Bestätigung, bevor du weitermachst.
+- Das Script aktualisiert automatisch: `CHANGELOG.md`, `manifest.json`, erstellt den Commit und setzt den annotierten Git-Tag.
 
-### 5. Commit erstellen
-
-- Stage alle geänderten Dateien: `git add -A`
-- Erstelle einen Commit mit einer sprechenden deutschen Commit-Message im Format:
-  ```
-  Release v<VERSION>: <Kurzbeschreibung der wichtigsten Änderungen>
-  
-  - <Detailpunkt 1>
-  - <Detailpunkt 2>
-  - ...
-  ```
-- Frage den Benutzer vor dem Commit, ob die Message passt.
-
-### 6. Version-Tag setzen
-
-- Erstelle einen annotierten Git-Tag: `git tag -a v<VERSION> -m "Release v<VERSION>"`
-
-### 7. Zusammenfassung
+### 4. Zusammenfassung
 
 Zeige dem Benutzer eine Zusammenfassung:
 - Neue Version
@@ -76,7 +67,7 @@ Zeige dem Benutzer eine Zusammenfassung:
 
 ## Wichtige Regeln
 
-- Ändere **nur** die Dateien `manifest.json` und `CHANGELOG.md` – keine anderen Dateien modifizieren.
+- Das Script übernimmt alle Dateiänderungen (nur `CHANGELOG.md` und `manifest.json`) sowie Commit und Tag – **keine manuellen Änderungen** an anderen Dateien.
 - Führe **kein** `git push` aus – das macht der Benutzer selbst.
 - Schreibe Changelog-Einträge und Commit-Messages auf **Deutsch**.
 - Frage bei Unklarheiten **immer** nach, statt zu raten.

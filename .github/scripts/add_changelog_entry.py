@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Fügt einen neuen Eintrag in CHANGELOG.md ein.
+Fügt einen neuen Eintrag in CHANGELOG.md ein, aktualisiert manifest.json
+und erstellt optional Commit + Git-Tag.
 
 Verwendung:
     python3 .github/scripts/add_changelog_entry.py \\
@@ -8,19 +9,27 @@ Verwendung:
         --date 2026-05-23 \\
         --added "Neues Feature A" "Neues Feature B" \\
         --changed "Änderung C" \\
-        --fixed "Bugfix D"
+        --fixed "Bugfix D" \\
+        --commit-message "Release v1.8.0: Kurzbeschreibung"
+
+Mit --commit-message werden Manifest, Changelog, Commit und Tag automatisch
+erstellt. Ohne --commit-message wird nur Changelog und Manifest aktualisiert.
 
 Jeder --added/--changed/--fixed Wert wird als eigener Listenpunkt eingefügt.
 Abschnitte ohne Einträge werden weggelassen.
 """
 
 import argparse
+import json
 import re
+import subprocess
 import sys
 from datetime import date
 from pathlib import Path
 
-CHANGELOG_PATH = Path(__file__).parents[2] / "CHANGELOG.md"
+REPO_ROOT = Path(__file__).parents[2]
+CHANGELOG_PATH = REPO_ROOT / "CHANGELOG.md"
+MANIFEST_PATH = REPO_ROOT / "custom_components" / "envertech_local" / "manifest.json"
 
 HEADER_MARKER = "# Changelog"
 ENTRY_PATTERN = re.compile(r"^## \[", re.MULTILINE)
@@ -37,13 +46,34 @@ def build_entry(version: str, entry_date: str, added: list, changed: list, fixed
     return "\n".join(lines)
 
 
+def update_manifest(version: str) -> None:
+    """Aktualisiert die Version in manifest.json."""
+    if not MANIFEST_PATH.exists():
+        print(f"Fehler: {MANIFEST_PATH} nicht gefunden.", file=sys.stderr)
+        sys.exit(1)
+    manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+    manifest["version"] = version
+    MANIFEST_PATH.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(f"✓ manifest.json auf Version {version} aktualisiert.")
+
+
+def git_commit_and_tag(version: str, message: str) -> None:
+    """Staged alle Änderungen, erstellt Commit und annotierten Tag."""
+    subprocess.run(["git", "add", "-A"], cwd=REPO_ROOT, check=True)
+    subprocess.run(["git", "commit", "-m", message], cwd=REPO_ROOT, check=True)
+    tag = f"v{version}"
+    subprocess.run(["git", "tag", "-a", tag, "-m", f"Release {tag}"], cwd=REPO_ROOT, check=True)
+    print(f"✓ Commit erstellt und Tag {tag} gesetzt.")
+
+
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Changelog-Eintrag hinzufügen")
+    parser = argparse.ArgumentParser(description="Release vorbereiten: Changelog, Manifest, Commit und Tag")
     parser.add_argument("--version", required=True, help="Neue Version, z.B. 1.8.0")
     parser.add_argument("--date", default=str(date.today()), help="Datum YYYY-MM-DD (Standard: heute)")
     parser.add_argument("--added", nargs="*", default=[], metavar="TEXT", help="Einträge für 'Hinzugefügt'")
     parser.add_argument("--changed", nargs="*", default=[], metavar="TEXT", help="Einträge für 'Geändert'")
     parser.add_argument("--fixed", nargs="*", default=[], metavar="TEXT", help="Einträge für 'Behoben'")
+    parser.add_argument("--commit-message", metavar="MSG", help="Commit-Message. Wenn angegeben, werden Commit und Tag automatisch erstellt.")
     args = parser.parse_args()
 
     if not any([args.added, args.changed, args.fixed]):
@@ -76,6 +106,16 @@ def main() -> None:
     print(f"✓ Eintrag für [{args.version}] erfolgreich in {CHANGELOG_PATH.name} eingefügt.")
     print()
     print(new_entry)
+
+    # Update manifest
+    update_manifest(args.version)
+
+    # Commit + Tag if message provided
+    if args.commit_message:
+        git_commit_and_tag(args.version, args.commit_message)
+        print()
+        print(f"Release v{args.version} abgeschlossen. Jetzt pushen mit:")
+        print("  git push && git push --tags")
 
 
 if __name__ == "__main__":
