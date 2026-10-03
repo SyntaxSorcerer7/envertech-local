@@ -4,6 +4,11 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 Versionierung folgt [Semantic Versioning](https://semver.org/).
 
+## [1.7.4] – 2026-10-03
+
+### Hinzugefügt
+- MIT-Lizenzdatei im Repository-Root für die Aufnahme in den HACS-Standardkatalog
+
 ## [1.7.3] – 2026-05-23
 
 ### Geändert
