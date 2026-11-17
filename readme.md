@@ -5,6 +5,7 @@
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.1+-blue.svg)](https://www.home-assistant.io/)
 [![Release downloads](https://img.shields.io/github/downloads/SyntaxSorcerer7/envertech-local/total?label=release%20downloads)](https://github.com/SyntaxSorcerer7/envertech-local/releases)
+![README views](https://komarev.com/ghpvc/?username=SyntaxSorcerer7-envertech-local&label=README%20views&color=blue)
 
 A local Home Assistant integration for **Envertech EVT2000SE** microinverters, connecting directly over the local TCP protocol without the cloud.
 
