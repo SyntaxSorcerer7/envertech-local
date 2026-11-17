@@ -4,6 +4,12 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 Versionierung folgt [Semantic Versioning](https://semver.org/).
 
+## [1.7.5] – 2026-11-17
+
+### Hinzugefügt
+- Zweisprachige GitHub-Formulare für Feature-Wünsche und Fehlermeldungen, mit automatischer Kennzeichnung und dokumentiertem Ablauf für die Sichtung.
+- Direkte Links zu den Formularen, zu offenen Feature-Wünschen und zu verwandten Energieprojekten in der README.
+
 ## [1.7.4] – 2026-10-03
 
 ### Hinzugefügt
