@@ -4,6 +4,11 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 Versionierung folgt [Semantic Versioning](https://semver.org/).
 
+## [1.7.7] – 2026-11-17
+
+### Geändert
+- HACS lädt die Integrationsdateien als ZIP-Paket direkt vom GitHub-Release. GitHub zählt diese Downloads für das README-Badge.
+
 ## [1.7.6] – 2026-11-17
 
 ### Behoben
