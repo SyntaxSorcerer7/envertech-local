@@ -4,6 +4,11 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 Versionierung folgt [Semantic Versioning](https://semver.org/).
 
+## [1.7.6] – 2026-11-17
+
+### Behoben
+- PV-Eingänge werden ab Home Assistant Core 2026.8 über die interne Geräte-ID mit dem Wechselrichter verknüpft. Das behebt die Warnung zu via_device und erhält bestehende Geräte- und Entitätskennungen (#2).
+
 ## [1.7.5] – 2026-11-17
 
 ### Hinzugefügt
