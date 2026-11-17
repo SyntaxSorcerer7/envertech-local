@@ -1,132 +1,127 @@
+**English** | [Deutsch](README.de.md)
+
 # Envertech EVT Local – Home Assistant Integration
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.1+-blue.svg)](https://www.home-assistant.io/)
+[![Release downloads](https://img.shields.io/github/downloads/SyntaxSorcerer7/envertech-local/total?label=release%20downloads)](https://github.com/SyntaxSorcerer7/envertech-local/releases)
 
-Lokale Home Assistant Integration für **Envertech EVT2000SE** Mikro-Wechselrichter – komplett ohne Cloud, direkt über das lokale TCP-Protokoll.
+A local Home Assistant integration for **Envertech EVT2000SE** microinverters, connecting directly over the local TCP protocol without the cloud.
 
-💡 [Feature vorschlagen](https://github.com/SyntaxSorcerer7/envertech-local/issues/new?template=feature_request.yml)
-· [Feature-Wünsche ansehen](https://github.com/SyntaxSorcerer7/envertech-local/issues?q=is%3Aissue%20is%3Aopen%20label%3Aenhancement)
-· [Fehler melden](https://github.com/SyntaxSorcerer7/envertech-local/issues/new?template=bug_report.yml)
+💡 [Suggest a feature](https://github.com/SyntaxSorcerer7/envertech-local/issues/new?template=feature_request.yml)
+· [View feature requests](https://github.com/SyntaxSorcerer7/envertech-local/issues?q=is%3Aissue%20is%3Aopen%20label%3Aenhancement)
+· [Report a bug](https://github.com/SyntaxSorcerer7/envertech-local/issues/new?template=bug_report.yml)
 
-Zum Erstellen eines Issues brauchst du ein GitHub-Konto. Vorhandene Wünsche kannst du mit 👍 unterstützen oder um deinen Anwendungsfall ergänzen.
-
----
-
-## Weitere Energieprojekte
-
-- [Solar Flow Card](https://github.com/SyntaxSorcerer7/home-assistant-solar-flow-card) – HACS-Dashboard-Karte für PV-, Batterie-, Haus- und Netzenergieflüsse
-- [MARSTEK B2500 MQTT tools](https://github.com/SyntaxSorcerer7/marstek-b2500-mqtt-tools) – lokale MQTT-Werkzeuge und Erkenntnisse zum B2500 V2 / HMJ-2
-- [Projektübersicht](https://github.com/SyntaxSorcerer7) – Einstiegspunkt für alle Solar- und Home-Assistant-Projekte
+You need a GitHub account to create an issue. You can also support existing requests with 👍 or add your use case.
 
 ---
 
 ## Features
 
-- **Rein lokal** – Keine Cloud-Abhängigkeit, keine Internetverbindung nötig
-- **Live-Daten** aller 4 Mikroinverter-Kanäle (MI 0–3):
-  - DC-Spannung (V)
-  - AC-Leistung (W)
-  - Gesamtenergie (kWh)
-  - Temperatur (°C)
-  - AC-Spannung (V)
-  - Frequenz (Hz)
-- **Gesamtwerte** über alle Kanäle (Gesamtleistung, Gesamtenergie)
-- **Leistungsbegrenzung** setzen (600W – 2000W in festen Stufen)
-- **Firmware-Version** auslesen
-- **Persistente TCP-Verbindung** für maximale Zuverlässigkeit
-- **Config Flow** – Einrichtung über die HA-Oberfläche
-- **Übersetzungen** – Deutsch und Englisch
+- **Fully local** – no cloud dependency or internet connection required
+- **Live data** for all 4 microinverter channels (MI 0–3):
+  - DC voltage (V)
+  - AC power (W)
+  - Total energy (kWh)
+  - Temperature (°C)
+  - AC voltage (V)
+  - Frequency (Hz)
+- **Aggregate values** across all channels (total power and energy)
+- Set a **power limit** (600W–2000W in fixed steps)
+- Read the **firmware version**
+- **Persistent TCP connection** for maximum reliability
+- **Config flow** – setup through the Home Assistant interface
+- **Translations** – German and English
 
 ---
 
-## Voraussetzungen
+## Requirements
 
-- Home Assistant 2024.1.0 oder neuer
-- [HACS](https://hacs.xyz/) installiert
-- Envertech EVT2000SE Wechselrichter im lokalen Netzwerk
-- Bekannte IP-Adresse und Seriennummer des Wechselrichters
+- Home Assistant 2024.1.0 or newer
+- [HACS](https://hacs.xyz/) installed
+- An Envertech EVT2000SE inverter on the local network
+- The inverter's IP address and serial number
 
-### Seriennummer herausfinden
+### Finding the serial number
 
-Die Seriennummer steht auf dem Typenschild des Wechselrichters und wird **genau so eingegeben, wie sie dort aufgedruckt ist** (z.B. `3011156`).
+The serial number is on the inverter's nameplate and must be **entered exactly as printed** (e.g. `3011156`).
 
-Die Seriennummer kann auch über die EnverView-App oder das Envertech-Portal abgelesen werden.
+You can also find it in the EnverView app or the Envertech portal.
 
 ---
 
 ## Installation
 
-### Über HACS (empfohlen)
+### Via HACS (recommended)
 
-1. **HACS** öffnen → **Integrationen** → Menü (⋮) → **Benutzerdefinierte Repositories**
-2. Repository-URL eingeben: `https://github.com/DEIN-USER/envertech-local`
-3. Kategorie: **Integration**
-4. **Hinzufügen** → **Envertech EVT Local** suchen → **Herunterladen**
-5. Home Assistant **neu starten**
+1. Open **HACS** → **Integrations** → menu (⋮) → **Custom repositories**
+2. Enter the repository URL: `https://github.com/SyntaxSorcerer7/envertech-local`
+3. Select the **Integration** category
+4. Select **Add**, search for **Envertech EVT Local**, and select **Download**
+5. **Restart** Home Assistant
 
-### Manuell
+### Manual
 
-1. Den Ordner `custom_components/envertech_local/` in dein Home Assistant `config/custom_components/` Verzeichnis kopieren
-2. Home Assistant **neu starten**
-
----
-
-## Konfiguration
-
-### Über die UI (Config Flow)
-
-1. **Einstellungen** → **Geräte & Dienste** → **Integration hinzufügen**
-2. Nach **"Envertech EVT Local"** suchen
-3. IP-Adresse des Wechselrichters eingeben
-4. Seriennummer eingeben, genau wie auf dem Typenschild aufgedruckt
-5. Die Integration testet die Verbindung automatisch
-
-### Parameter
-
-| Parameter | Beschreibung | Beispiel |
-|-----------|-------------|----------|
-| IP-Adresse | Lokale IP des Wechselrichters | `192.168.1.100` |
-| Seriennummer | Seriennummer vom Typenschild | `3011156` |
-
-> **Tipp:** Vergib dem Wechselrichter eine feste IP-Adresse in deinem Router (DHCP-Reservierung), damit sich die IP nicht ändert.
+1. Copy the `custom_components/envertech_local/` folder into your Home Assistant `config/custom_components/` directory
+2. **Restart** Home Assistant
 
 ---
 
-## Entitäten
+## Configuration
 
-### Pro Mikroinverter-Kanal (MI 0–3)
+### Via the UI (config flow)
 
-Es werden **4 Geräte** angelegt (MI 0 bis MI 3), jeweils mit:
+1. Go to **Settings** → **Devices & services** → **Add integration**
+2. Search for **Envertech EVT Local**
+3. Enter the inverter's IP address
+4. Enter the serial number exactly as printed on the nameplate
+5. The integration automatically tests the connection
 
-| Sensor | Einheit | Device Class | Beschreibung |
-|--------|---------|-------------|--|
-| DC-Spannung | V | `voltage` | Eingangsspannung vom Solarpanel |
-| AC-Leistung | W | `power` | Aktuelle Einspeiseleistung |
-| Gesamtenergie | kWh | `energy` | Kumulierte Energieproduktion |
-| Temperatur | °C | `temperature` | Interne Temperatur des MI |
-| AC-Spannung | V | `voltage` | Netzspannung |
-| Frequenz | Hz | `frequency` | Netzfrequenz |
-| **Spitzenleistung Heute** | W | `power` | Höchste AC-Leistung des aktuellen Tages, Reset um Mitternacht |
+### Parameters
 
-### Gesamtgerät
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| IP address | Local IP address of the inverter | `192.168.1.100` |
+| Serial number | Serial number on the nameplate | `3011156` |
 
-| Sensor | Einheit | Beschreibung |
-|--------|---------|--------------|
-| AC-Gesamtleistung | W | Summe aller 4 MI-Kanäle |
-| Gesamtenergie | kWh | Summe aller 4 MI-Kanäle |
-| **Gesamtspitzenleistung Heute** | W | Höchste Gesamt-AC-Leistung des aktuellen Tages, Reset um Mitternacht |
-| Firmware-Version | – | z.B. "164.125" (standardmäßig deaktiviert) |
+> **Tip:** Assign the inverter a fixed IP address in your router (DHCP reservation) so its address does not change.
 
-### Steuerung
+---
 
-| Entität | Typ | Beschreibung |
-|---------|-----|--------------|
-| Leistungsbegrenzung | `select` | Watt-Stufe wählen (600W–2000W) |
+## Entities
 
-### Verfügbare Leistungsstufen (EVT2000SE)
+### Per microinverter channel (MI 0–3)
 
-| Stufe |
+The integration creates **4 devices** (MI 0 to MI 3), each with:
+
+| Sensor | Unit | Device class | Description |
+|--------|------|--------------|-------------|
+| DC voltage | V | `voltage` | Solar panel input voltage |
+| AC power | W | `power` | Current power fed into the grid |
+| Total energy | kWh | `energy` | Cumulative energy production |
+| Temperature | °C | `temperature` | Internal MI temperature |
+| AC voltage | V | `voltage` | Grid voltage |
+| Frequency | Hz | `frequency` | Grid frequency |
+| **Peak power today** | W | `power` | Highest AC power today, reset at midnight |
+
+### Aggregate device
+
+| Sensor | Unit | Description |
+|--------|------|-------------|
+| Total AC power | W | Sum of all 4 MI channels |
+| Total energy | kWh | Sum of all 4 MI channels |
+| **Total peak power today** | W | Highest total AC power today, reset at midnight |
+| Firmware version | – | e.g. "164.125" (disabled by default) |
+
+### Control
+
+| Entity | Type | Description |
+|--------|------|-------------|
+| Power limit | `select` | Select a power level (600W–2000W) |
+
+### Available power levels (EVT2000SE)
+
+| Level |
 |-------|
 | 600W |
 | 800W |
@@ -142,60 +137,60 @@ Es werden **4 Geräte** angelegt (MI 0 bis MI 3), jeweils mit:
 
 ## Dashboard
 
-Die Integration enthält ein fertiges Lovelace-Dashboard unter [`lovelace/dashboard.yaml`](lovelace/dashboard.yaml).
+The integration includes a ready-made Lovelace dashboard at [`lovelace/dashboard.yaml`](lovelace/dashboard.yaml).
 
-### Enthaltene Karten
+### Included cards
 
-| Karte | Beschreibung |
-|-------|-------------|
-| **Energiefluss** | Animierter Fluss von jedem Eingang über den Wechselrichter ins Netz (Power Flow Card Plus) |
-| **Live-Eingänge** | 4er-Grid mit aktueller Leistung je Eingang (Mushroom Cards) |
-| **Gauge** | Anzeige der Gesamtleistung mit Farbschwellen (0–2000W) |
-| **Heute / Gesamt** | Heutige kWh, heutiger Ertrag (€), Gesamtertrag (€) |
-| **24h Leistungsgraph** | Watt-Verlauf aller 4 Eingänge + Gesamt, letzten 24h (ApexCharts) |
-| **Tagesertrag akkumuliert** | kWh-Aufbau von 00:00 bis jetzt – täglich automatischer Reset (ApexCharts) |
-| **7-Tage-Balken** | Tagesproduktion der letzten 7 Tage mit Datenbeschriftung (ApexCharts) |
-| **Detailkarten** | Alle Messwerte je Eingang (Spannung, Frequenz, Temperatur, Energie) |
-| **Steuerung** | Leistungsbegrenzung setzen |
+| Card | Description |
+|------|-------------|
+| **Energy flow** | Animated flow from each input through the inverter to the grid (Power Flow Card Plus) |
+| **Live inputs** | Four-column grid showing current power per input (Mushroom Cards) |
+| **Gauge** | Total power with color thresholds (0–2000W) |
+| **Today / total** | Today's kWh, today's yield (€), total yield (€) |
+| **24-hour power graph** | Power over the last 24 hours for all 4 inputs and the total (ApexCharts) |
+| **Cumulative daily yield** | kWh accumulated from midnight to now, automatically reset daily (ApexCharts) |
+| **7-day bar chart** | Daily production for the last 7 days with data labels (ApexCharts) |
+| **Detail cards** | All readings per input (voltage, frequency, temperature, energy) |
+| **Control** | Set the power limit |
 
-### Benötigte HACS Custom Cards
+### Required HACS custom cards
 
-Vor der Nutzung einmalig in HACS installieren:
+Install these once through HACS before using the dashboard:
 
-| Card | HACS-Suche |
-|------|-----------|
+| Card | HACS search |
+|------|-------------|
 | ApexCharts Card | `ApexCharts Card` |
 | Mushroom | `Mushroom` |
 | Power Flow Card Plus | `Power Flow Card Plus` |
 
-### Dashboard importieren
+### Importing the dashboard
 
-1. In Home Assistant: **Einstellungen** → **Dashboards** → **Dashboard hinzufügen**
-2. Namen vergeben (z.B. `Solar`), Icon `mdi:solar-power-variant`
-3. Dashboard öffnen → Menü (⋮) → **Raw-Konfigurationseditor**
-4. Inhalt von [`lovelace/dashboard.yaml`](lovelace/dashboard.yaml) einfügen
-5. **Speichern**
+1. In Home Assistant, go to **Settings** → **Dashboards** → **Add dashboard**
+2. Enter a name (e.g. `Solar`) and the icon `mdi:solar-power-variant`
+3. Open the dashboard → menu (⋮) → **Raw configuration editor**
+4. Paste the contents of [`lovelace/dashboard.yaml`](lovelace/dashboard.yaml)
+5. **Save**
 
-### Einmalige Einrichtung
+### One-time setup
 
-**Schritt 1 – YOUR_SERIAL ersetzen:**  
-Alle Vorkommen von `YOUR_SERIAL` durch deine Seriennummer (Kleinbuchstaben) ersetzen. Die genaue Entity-ID siehst du unter Einstellungen → Geräte & Dienste → Envertech → Entity anklicken.
+**Step 1 – Replace YOUR_SERIAL:**  
+Replace every occurrence of `YOUR_SERIAL` with your serial number (lowercase). You can find the exact entity ID under Settings → Devices & services → Envertech → select the entity.
 
-Alle anderen Sensoren (Energie Heute, Ertrag Heute) werden **automatisch von der Integration angelegt** – kein manueller Helfer nötig.
+All other sensors (energy today, yield today) are **created automatically by the integration**; no manual helper is required.
 
 ---
 
-## Automationen & Dashboards
+## Automations & dashboards
 
-### Beispiel: Energy Dashboard
+### Example: Energy Dashboard
 
-Die Sensoren mit `device_class: energy` und `state_class: total_increasing` sind automatisch für das **Home Assistant Energy Dashboard** kompatibel. Füge dort die Gesamtenergie oder die einzelnen MI-Energiesensoren hinzu.
+Sensors with `device_class: energy` and `state_class: total_increasing` are automatically compatible with the **Home Assistant Energy Dashboard**. Add the total energy sensor or the individual MI energy sensors there.
 
-### Beispiel: Leistungsbegrenzung per Automation
+### Example: Power limit automation
 
 ```yaml
 automation:
-  - alias: "Wechselrichter auf 800W begrenzen bei hohem Netzbezug"
+  - alias: "Limit inverter to 800W when grid consumption is high"
     trigger:
       - platform: numeric_state
         entity_id: sensor.stromzaehler_leistung
@@ -210,11 +205,11 @@ automation:
           option: "800W"
 ```
 
-### Beispiel: Temperatur-Warnung
+### Example: Temperature warning
 
 ```yaml
 automation:
-  - alias: "Wechselrichter Übertemperatur-Warnung"
+  - alias: "Inverter overtemperature warning"
     trigger:
       - platform: numeric_state
         entity_id: sensor.envertech_input_port_1_temperatur
@@ -222,125 +217,127 @@ automation:
     action:
       - service: notify.mobile_app
         data:
-          title: "⚠️ Wechselrichter Warnung"
-          message: "MI 0 Temperatur: {{ states('sensor.envertech_input_port_1_temperatur') }}°C"
+          title: "⚠️ Inverter warning"
+          message: "MI 0 temperature: {{ states('sensor.envertech_input_port_1_temperatur') }}°C"
 ```
 
-### Beispiel: Lovelace Dashboard Card
+### Example: Lovelace dashboard card
 
 ```yaml
 type: entities
 title: Envertech EVT2000SE
 entities:
   - entity: sensor.envertech_a1b2c3d4_ac_gesamtleistung
-    name: Gesamtleistung
+    name: Total power
   - entity: sensor.envertech_a1b2c3d4_gesamtenergie
-    name: Gesamtenergie
+    name: Total energy
   - entity: select.envertech_a1b2c3d4_leistungsbegrenzung
-    name: Leistungsbegrenzung
+    name: Power limit
   - type: divider
   - entity: sensor.envertech_input_port_1_ac_leistung
-    name: MI 0 Leistung
+    name: MI 0 power
   - entity: sensor.envertech_input_port_2_ac_leistung
-    name: MI 1 Leistung
+    name: MI 1 power
   - entity: sensor.envertech_input_port_3_ac_leistung
-    name: MI 2 Leistung
+    name: MI 2 power
   - entity: sensor.envertech_input_port_4_ac_leistung
-    name: MI 3 Leistung
+    name: MI 3 power
 ```
+
+The entity IDs above are examples; replace them with the IDs in your installation.
 
 ---
 
-## Technische Details
+## Technical details
 
-### Kommunikationsprotokoll
+### Communication protocol
 
-Die Integration kommuniziert direkt über TCP Port `14889` mit dem Wechselrichter. Das Protokoll ist proprietär und wurde durch Reverse Engineering der EnverView-App dokumentiert (siehe `research/wechselrichter-api.md`).
+The integration communicates directly with the inverter over TCP port `14889`. The proprietary protocol was documented by reverse engineering the EnverView app (see [`research/wechselrichter-api.md`](research/wechselrichter-api.md)).
 
-| Eigenschaft | Wert |
-|-------------|------|
+| Property | Value |
+|----------|-------|
 | Transport | TCP |
 | Port | 14889 |
-| TX-Encoding | ASCII-HEX |
-| RX-Encoding | Binär |
-| Poll-Intervall | 120 Sekunden |
-| Verbindung | Persistent (eine TCP-Session) |
+| TX encoding | ASCII-HEX |
+| RX encoding | Binary |
+| Polling interval | 120 seconds |
+| Connection | Persistent (one TCP session) |
 
-### Verbindungsstrategie
+### Connection strategy
 
-Die Integration hält **eine persistente TCP-Verbindung** zum Wechselrichter. Dies ist notwendig, da der WR bei häufigem Neuverbinden instabil wird. Auf einer bestehenden Verbindung antwortet er zuverlässig – auch nach längerer Idle-Zeit.
+The integration maintains **one persistent TCP connection** to the inverter. This is necessary because frequent reconnections make the inverter unstable. It responds reliably over an existing connection, even after a long idle period.
 
-### Retries & Fehlerbehandlung
+### Retries & error handling
 
-| Operation | Max Retries | Delay | Timeout |
-|-----------|------------|-------|---------|
+| Operation | Max retries | Delay | Timeout |
+|-----------|-------------|-------|---------|
 | Live Data (0x1077) | 3 | 3s | 3s |
 | Power Limit Read (0x1041) | 5 | 5s | 10s |
 | TCP Connect | 1 | – | 5s |
 
-### Geräte-Architektur
+### Device architecture
 
-Der EVT2000SE enthält 4 logische Mikroinverter (MI 0–3) mit fortlaufenden UIDs. Jeder MI hat ein eigenes Solarpanel-Input und liefert unabhängige Messwerte. Die Integration erstellt für jeden MI ein eigenes HA-Gerät mit zugehörigen Sensoren.
+The EVT2000SE contains 4 logical microinverters (MI 0–3) with consecutive UIDs. Each MI has its own solar panel input and provides independent readings. The integration creates a separate Home Assistant device with associated sensors for each MI.
 
 ---
 
-## Fehlerbehebung
+## Troubleshooting
 
 ### "Cannot connect to inverter"
 
-- Prüfe, ob der Wechselrichter eingeschaltet ist (produziert er gerade Strom?)
-- Prüfe die IP-Adresse: `ping 192.168.1.100`
-- Prüfe, ob Port 14889 erreichbar ist: `nc -zv 192.168.1.100 14889`
-- Manche Wechselrichter sind nur tagsüber erreichbar (kein Standby-Modus)
-- Stelle sicher, dass keine andere Anwendung (z.B. EnverView-App) gleichzeitig verbunden ist
+- Check that the inverter is switched on (is it currently producing power?)
+- Check the IP address: `ping 192.168.1.100`
+- Check whether port 14889 is reachable: `nc -zv 192.168.1.100 14889`
+- Some inverters are only reachable during the day (no standby mode)
+- Make sure no other application (e.g. the EnverView app) is connected at the same time
 
 ### "No response from inverter"
 
-- Der Wechselrichter braucht manchmal mehrere Sekunden zum Antworten
-- Die Integration hat automatische Retries eingebaut
-- Bei anhaltenden Problemen: HA neu starten, um die TCP-Verbindung zurückzusetzen
+- The inverter sometimes takes several seconds to respond
+- The integration retries automatically
+- If problems persist, restart Home Assistant to reset the TCP connection
 
-### Sensoren zeigen "Unavailable"
+### Sensors show "Unavailable"
 
-- Nachts liefern die Wechselrichter oft keine Daten (kein Strom = kein Netzwerk)
-- Nach Sonnenaufgang sollten die Sensoren automatisch wieder verfügbar werden
-- Prüfe die HA-Logs: **Einstellungen** → **System** → **Protokolle** → nach "envertech" filtern
+- Inverters often provide no data at night (no power = no network)
+- Sensors should become available automatically after sunrise
+- Check the Home Assistant logs: **Settings** → **System** → **Logs** → filter for "envertech"
 
-### Falsche Seriennummer
+### Incorrect serial number
 
-- Die Seriennummer **genau so eingeben, wie sie auf dem Typenschild steht**
-- Beispiel: Typenschild zeigt `3011156` → genau `3011156` eingeben
+- Enter the serial number **exactly as it appears on the nameplate**
+- Example: if the nameplate shows `3011156`, enter exactly `3011156`
 
-### Leistungsbegrenzung funktioniert nicht
+### Power limit does not work
 
-- Das Lesen der aktuellen Begrenzung ist unzuverlässig (~20% Erfolgsrate)
-- Das **Setzen** funktioniert zuverlässig
-- Nach dem Setzen wird der neue Wert direkt in der Integration aktualisiert
-- Nur die definierten Stufen sind verfügbar (600, 800, 1200, 1400, 1440, 1600, 1640, 1800, 2000W)
+- Reading the current limit is unreliable (~20% success rate)
+- **Setting** the limit works reliably
+- After setting it, the new value is immediately updated in the integration
+- Only the defined levels are available (600, 800, 1200, 1400, 1440, 1600, 1640, 1800, 2000W)
 
 ---
 
-## Entwicklung
+## Development
 
-### Projektstruktur
+### Project structure
 
 ```
 custom_components/envertech_local/
-├── __init__.py          # Integration Setup & Entry Points
-├── config_flow.py       # Konfigurationsdialog
-├── const.py             # Konstanten
-├── coordinator.py       # Daten-Coordinator (Polling)
-├── manifest.json        # Integration Manifest
-├── protocol.py          # TCP-Protokoll Implementierung
-├── select.py            # Power Limit Select Entity
-├── sensor.py            # Sensor Entities
-├── strings.json         # UI-Strings (Basis)
+├── __init__.py          # Integration setup & entry points
+├── config_flow.py       # Configuration flow
+├── const.py             # Constants
+├── coordinator.py       # Data coordinator (polling)
+├── manifest.json        # Integration manifest
+├── protocol.py          # TCP protocol implementation
+├── select.py            # Power limit select entity
+├── sensor.py            # Sensor entities
+├── strings.json         # Base UI strings
 └── translations/
-    ├── de.json           # Deutsche Übersetzung
-    └── en.json           # Englische Übersetzung
+    ├── de.json           # German translation
+    └── en.json           # English translation
 ```
 
-### Architektur
+### Architecture
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -368,38 +365,38 @@ custom_components/envertech_local/
           └────────────────────┘
 ```
 
-### Protokoll-Referenz
+### Protocol reference
 
-Die vollständige Protokolldokumentation befindet sich in [`research/wechselrichter-api.md`](research/wechselrichter-api.md).
+The complete protocol documentation is available in [`research/wechselrichter-api.md`](research/wechselrichter-api.md).
 
 ---
 
-## Kompatibilität
+## Compatibility
 
-| Gerät | Status |
-|-------|--------|
-| EVT2000SE | ✅ Voll unterstützt |
-| EVT800 | ⚠️ Sollte funktionieren (ungetestet, ggf. andere Watt-Codes) |
-| EVT1000 | ⚠️ Sollte funktionieren (ungetestet) |
-| EVT400 | ⚠️ Sollte funktionieren (ungetestet, weniger MI-Kanäle) |
-| Envertech Monitor/Gateway | ❌ Nicht unterstützt (anderer Kommunikationsablauf) |
+| Device | Status |
+|--------|--------|
+| EVT2000SE | ✅ Fully supported |
+| EVT800 | ⚠️ Should work (untested; watt codes may differ) |
+| EVT1000 | ⚠️ Should work (untested) |
+| EVT400 | ⚠️ Should work (untested; fewer MI channels) |
+| Envertech monitor/gateway | ❌ Not supported (different communication flow) |
 
 ---
 
 ## Changelog
 
-Den vollständigen Changelog findest du in der Datei [CHANGELOG.md](CHANGELOG.md).
+See [CHANGELOG.md](CHANGELOG.md) for the complete changelog.
 
 ---
 
-## Lizenz
+## License
 
 MIT License
 
 ---
 
-## Danksagung
+## Acknowledgments
 
-- Protokoll-Analyse basierend auf der decompilierten EnverView-App (v4.1.20)
-- Live-Verifizierung gegen EVT2000SE (Firmware 164.125)
-- PCAP-Mitschnitte mit PCAPdroid
+- Protocol analysis based on the decompiled EnverView app (v4.1.20)
+- Live verification against an EVT2000SE (firmware 164.125)
+- PCAP captures using PCAPdroid
