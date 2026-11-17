@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag (z.B. v1.7.2)"
+        description: "Vorhandener Release-Tag (z.B. v1.7.6)"
         required: true
 
 permissions:
@@ -16,14 +16,21 @@ permissions:
 jobs:
   release:
     runs-on: "ubuntu-latest"
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
     steps:
       - uses: "actions/checkout@v4"
+        with:
+          ref: refs/tags/${{ env.RELEASE_TAG }}
+
+      - name: Package the integration for HACS
+        run: |
+          git archive --format=zip --output=envertech_local.zip HEAD:custom_components/envertech_local
 
       - name: Extract changelog for this version
         id: changelog
         run: |
-          TAG="${{ github.event.inputs.tag || github.ref_name }}"
-          VERSION="${TAG#v}"
+          VERSION="${RELEASE_TAG#v}"
           # Extract the block between this version header and the next one
           NOTES=$(awk "/^## \[$VERSION\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md)
           # Write to file to preserve newlines
@@ -34,6 +41,10 @@ jobs:
       - name: Create GitHub Release
         uses: "softprops/action-gh-release@v2"
         with:
-          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          tag_name: ${{ env.RELEASE_TAG }}
           body_path: release_notes.txt
+          files: envertech_local.zip
+          fail_on_unmatched_files: true
+          overwrite_files: false
+          prerelease: ${{ contains(env.RELEASE_TAG, '-') }}
           token: ${{ secrets.GITHUB_TOKEN }}
