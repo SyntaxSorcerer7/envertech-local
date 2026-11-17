@@ -203,6 +203,25 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
+def _channel_device_info(
+    coordinator: EnvertechCoordinator, channel_idx: int
+) -> DeviceInfo:
+    """Build the device info shared by sensors on the same input port."""
+    link: dict[str, Any]
+    if coordinator.inverter_device_id is None:
+        # Home Assistant versions before 2026.8 only accept the identifier tuple.
+        link = {"via_device": (DOMAIN, coordinator.serial_hex)}
+    else:
+        link = {"via_device_id": coordinator.inverter_device_id}
+    return DeviceInfo(
+        identifiers={(DOMAIN, f"{coordinator.serial_hex}_mi{channel_idx}")},
+        name=f"envertech-input-port-{channel_idx + 1}",
+        manufacturer=MANUFACTURER,
+        model=MODEL,
+        **link,
+    )
+
+
 class _EnvertechChannelSensorBase(
     CoordinatorEntity[EnvertechCoordinator], RestoreSensor
 ):
@@ -229,13 +248,7 @@ class _EnvertechChannelSensorBase(
         self.entity_id = (
             f"sensor.envertech_mi_{channel_idx}_{description.key}"
         )
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"{coordinator.serial_hex}_mi{channel_idx}")},
-            name=f"envertech-input-port-{channel_idx + 1}",
-            manufacturer=MANUFACTURER,
-            model=MODEL,
-            via_device=(DOMAIN, coordinator.serial_hex),
-        )
+        self._attr_device_info = _channel_device_info(coordinator, channel_idx)
 
     def _channel_value(self) -> float | None:
         """Return the current value_fn result for this channel, or None."""
@@ -696,13 +709,7 @@ class EnvertechMaxPowerSensor(
         self.entity_id = (
             f"sensor.envertech_mi_{channel_idx}_max_power"
         )
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"{coordinator.serial_hex}_mi{channel_idx}")},
-            name=f"envertech-input-port-{channel_idx + 1}",
-            manufacturer=MANUFACTURER,
-            model=MODEL,
-            via_device=(DOMAIN, coordinator.serial_hex),
-        )
+        self._attr_device_info = _channel_device_info(coordinator, channel_idx)
 
     @property
     def native_value(self) -> int:
@@ -740,13 +747,7 @@ class EnvertechPowerPercentageSensor(
         self.entity_id = (
             f"sensor.envertech_mi_{channel_idx}_power_percentage"
         )
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"{coordinator.serial_hex}_mi{channel_idx}")},
-            name=f"envertech-input-port-{channel_idx + 1}",
-            manufacturer=MANUFACTURER,
-            model=MODEL,
-            via_device=(DOMAIN, coordinator.serial_hex),
-        )
+        self._attr_device_info = _channel_device_info(coordinator, channel_idx)
 
     @property
     def native_value(self) -> float | None:

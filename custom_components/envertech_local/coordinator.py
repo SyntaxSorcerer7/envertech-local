@@ -35,6 +35,7 @@ class EnvertechCoordinator(DataUpdateCoordinator[LiveData]):
         )
         self._serial: int = entry.data[CONF_SERIAL]
         self._power_limit: int | None = None
+        self.inverter_device_id: str | None = None
 
     @property
     def serial_hex(self) -> str:
