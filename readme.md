@@ -5,6 +5,12 @@
 
 Lokale Home Assistant Integration für **Envertech EVT2000SE** Mikro-Wechselrichter – komplett ohne Cloud, direkt über das lokale TCP-Protokoll.
 
+💡 [Feature vorschlagen](https://github.com/SyntaxSorcerer7/envertech-local/issues/new?template=feature_request.yml)
+· [Feature-Wünsche ansehen](https://github.com/SyntaxSorcerer7/envertech-local/issues?q=is%3Aissue%20is%3Aopen%20label%3Aenhancement)
+· [Fehler melden](https://github.com/SyntaxSorcerer7/envertech-local/issues/new?template=bug_report.yml)
+
+Zum Erstellen eines Issues brauchst du ein GitHub-Konto. Vorhandene Wünsche kannst du mit 👍 unterstützen oder um deinen Anwendungsfall ergänzen.
+
 ---
 
 ## Weitere Energieprojekte
